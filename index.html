@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朱石麟戰士大戰岳陽樓守護怪</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e67e22;
+            --accent-color: #c0392b;
+            --success-color: #27ae60;
+            --bg-color: #1e272e;
+            --card-bg: #f5f6fa;
+            --text-color: #2f3640;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #dcdde1;
+            color: var(--text-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 4px solid #718093;
+        }
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #fbc531;
+        }
+        header h1 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 25px;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .welcome-box {
+            text-align: center;
+        }
+        .welcome-box h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            font-weight: bold;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .form-group input {
+            padding: 10px 15px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 350px;
+            border: 2px solid #718093;
+            border-radius: 6px;
+            outline: none;
+        }
+        .monster-select {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .monster-btn {
+            background-color: #2f3640;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 8px rgba(0,0,0,0.2);
+            border: 2px solid #fbc531;
+        }
+        .monster-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        .alert {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 22px;
+        }
+
+        /* 對戰視圖 */
+        .battle-field {
+            background: #e4f1fe;
+            border: 3px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .battle-status {
+            background: rgba(255,255,255,0.95);
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 10px 15px;
+            width: 44%;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .battle-status h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+        .hp-bar-container {
+            background: #ccc;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #333;
+            margin-top: 5px;
+        }
+        .hp-bar {
+            background: var(--success-color);
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        /* 寶可夢佈局：左下題目，右下4個選項 */
+        .ui-box-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .question-box {
+            background: #fff;
+            border: 3px solid #2c3e50;
+            border-radius: 8px;
+            padding: 18px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .question-meta {
+            font-size: 13px;
+            color: #7f8c8d;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        .question-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 6px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+        }
+        .option-btn {
+            background: #34495e;
+            color: white;
+            border: 3px solid #2c3e50;
+            border-radius: 8px;
+            padding: 12px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option-btn:hover {
+            background: #2980b9;
+            transform: scale(1.02);
+        }
+
+        /* 結算畫面 */
+        .result-card {
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 3px solid #2c3e50;
+        }
+        .cartoon-avatar {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .result-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-title.fail { color: var(--accent-color); }
+        .result-title.hard { color: var(--secondary-color); }
+        .result-title.easy { color: var(--success-color); }
+
+        .result-desc {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .review-list {
+            text-align: left;
+            margin-top: 25px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .review-item {
+            background: #f1f2f6;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 5px solid #ccc;
+            font-size: 14px;
+        }
+        .review-item.correct { border-left-color: var(--success-color); }
+        .review-item.incorrect { border-left-color: var(--accent-color); }
+        .btn-restart {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn-restart:hover {
+            background-color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>朱石麟戰士大戰岳陽樓守護怪</h1>
+            <p>中四級《岳陽樓記》文言精粹與寫作手法實戰考驗</p>
+        </header>
+        <div class="content">
+            
+            <!-- 首頁選擇怪獸 -->
+            <div id="screen-home" class="screen active">
+                <div class="welcome-box">
+                    <h2>決戰洞庭湖畔</h2>
+                    <p style="margin-bottom: 15px; color: #555;">勇敢的朱石麟戰士啊！岳陽樓終極守護怪正在洞庭湖掀起濁浪！<br>每次對戰將從 100 道題庫中隨機抽選 30 題，若答錯 5 次將會力竭倒下。展現你的文言實力，擊敗守護怪吧！</p>
+                    <div class="form-group">
+                        <label for="player-name">請輸入朱石麟戰士姓名：</label>
+                        <input type="text" id="player-name" placeholder="例如：陳大文" autocomplete="off">
+                        <div id="name-alert" class="alert"></div>
+                    </div>
+                    <div class="monster-select">
+                        <button class="monster-btn" type="button" onclick="startBattle()">挑戰「岳陽樓終極守護怪」<br><small style="font-size:13px; font-weight:normal; opacity:0.9;">（100題庫隨機抽選30題）</small></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 對戰畫面 -->
+            <div id="screen-quiz" class="screen">
+                <div class="battle-field">
+                    <div class="battle-status">
+                        <h4 id="player-status-name">朱石麟戰士</h4>
+                        <div>錯失次數: <span id="wrong-count" style="color:var(--accent-color); font-weight:bold;">0</span> / 5</div>
+                        <div class="hp-bar-container"><div id="player-hp" class="hp-bar"></div></div>
+                    </div>
+                    <div class="battle-status" style="text-align: right;">
+                        <h4>岳陽樓終極守護怪</h4>
+                        <div>剩餘題目: <span id="ques-remaining">30</span> 題</div>
+                        <div class="hp-bar-container"><div id="monster-hp" class="hp-bar"></div></div>
+                    </div>
+                </div>
+
+                <div class="ui-box-container">
+                    <div class="question-box">
+                        <div class="question-meta">
+                            <span id="question-counter">題目 1 / 30</span>
+                            <span id="timer-display" style="color: #2980b9; font-weight:bold;">用時：00:00</span>
+                        </div>
+                        <div class="question-text" id="ui-question-content">題目載入中...</div>
+                    </div>
+                    <div class="options-grid" id="ui-options-container"></div>
+                </div>
+            </div>
+
+            <!-- 結算畫面 -->
+            <div id="screen-result" class="screen">
+                <div class="result-card">
+                    <div class="cartoon-avatar" id="result-avatar">🛌</div>
+                    <div class="result-title" id="result-title">中道崩殂</div>
+                    <p class="result-desc" id="result-desc">你未能堅持到最後，被怪物擊敗了。</p>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;" id="result-score-text">答對題數：0 / 30 題</div>
+                    <div style="font-size: 15px; color: #e67e22; font-weight: bold;" id="result-time-text">總用時：0分0秒</div>
+                    
+                    <button class="btn-restart" type="button" onclick="goToHome()">再來一次</button>
+
+                    <div class="review-section">
+                        <h3 style="color: #2c3e50; margin-bottom: 10px;">答題檢討與正確答案</h3>
+                        <div class="review-list" id="review-list"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 100道精編題庫資料
+        const masterBank = [
+            {q: "《岳陽樓記》的作者是北宋哪一位著名政治家兼文學家？", options: ["范仲淹", "歐陽修", "司馬光", "王安石"], ans: 0, correctText: "范仲淹"},
+            {q: "《岳陽樓記》是在宋仁宗哪一年號期間寫成的？", options: ["元豐五年", "熙寧二年", "慶曆四年", "紹興三年"], ans: 2, correctText: "慶曆四年"},
+            {q: "滕子京因甚麼原因被貶官到巴陵郡擔任知州？", options: ["被誣陷挪用公款遭貶官", "推行變法失敗主動辭職", "科舉考試失利調任地方", "因年老體衰退居二線"], ans: 0, correctText: "被誣陷挪用公款遭貶官"},
+            {q: "范仲淹寫作《岳陽樓記》時，身處哪裏擔任地方官？", options: ["杭州", "鄧州", "蘇州", "潁州"], ans: 1, correctText: "鄧州"},
+            {q: "《岳陽樓記》中文體「記」在古代屬於甚麼文體範疇？", options: ["純粹客觀記載歷史的史書", "抒發男女相思情感的詩賦", "兼具山水遊記與雜記並重議論", "專門向皇帝進諫的奏摺文"], ans: 2, correctText: "兼具山水遊記與雜記並重議論"},
+            {q: "古代「記」類文章的特點是甚麼？", options: ["融記事、寫景、抒情、議論於一體", "只記錄地理方位與建築數據", "只表達孤芳自賞的個人情緒", "只以押韻為主的駢體辭賦"], ans: 0, correctText: "融記事、寫景、抒情、議論於一體"},
+            {q: "《岳陽樓記》第一段中的哪兩個字是全篇文章的「眼目」？", options: ["勝狀", "謫守", "大觀", "大宴"], ans: 1, correctText: "謫守"},
+            {q: "范仲淹死後的諡號是甚麼？", options: ["文忠", "文安", "文達", "文正"], ans: 3, correctText: "文正"},
+            {q: "《岳陽樓記》收錄於下列哪一部文集？", options: ["《歐陽文忠公集》", "《范文正公集》", "《臨川先生文集》", "《元豐類稿集》"], ans: 1, correctText: "《范文正公集》"},
+            {q: "范仲淹在北宋時期曾主持過哪一次著名的政治改革？", options: ["王安石變法", "慶曆新政", "戊戌變法", "元祐更化"], ans: 1, correctText: "慶曆新政"},
+            {q: "「越明年，政通人和，百廢具興」中「越明年」的意思是甚麼？", options: ["過了五年之後的時間", "經過第二年（到了第二年）", "第二年越過邊界出征", "明年超越了所有前人"], ans: 1, correctText: "經過第二年（到了第二年）"},
+            {q: "「政通人和，百廢具興」這句話在文中主要說明甚麼？", options: ["滕子京卓越的治理政績", "朝廷國庫十分充裕富有", "巴陵郡商業非常發達熱鬧", "百姓普遍熱愛遊山玩水"], ans: 0, correctText: "滕子京卓越的治理政績"},
+            {q: "滕子京重修岳陽樓時，「增其舊制」是指甚麼？", options: ["完全推倒舊樓重建新樓", "制定新的參觀管理制度", "擴大原有的建築規模格局", "大幅縮減岳陽樓的面積"], ans: 2, correctText: "擴大原有的建築規模格局"},
+            {q: "「屬予作文以記之」一句中，省略了甚麼句子成分？", options: ["賓語「岳陽樓」", "主語「滕子京」", "介詞「在」或「於」", "謂語動詞「寫」"], ans: 1, correctText: "主語「滕子京」"},
+            {q: "「予觀夫巴陵勝狀，在洞庭一湖」中「勝狀」的意思是甚麼？", options: ["優美壯麗的景色", "戰勝敵人的捷報", "超越前人的體制", "盛大的宴會場面"], ans: 0, correctText: "優美壯麗的景色"},
+            {q: "文中描寫洞庭湖「銜遠山，吞長江」，運用了甚麼修辭手法？", options: ["借代與借喻修辭", "反覆與設問修辭", "擬人（比擬）與對偶", "白描與雙關修辭"], ans: 2, correctText: "擬人（比擬）與對偶"},
+            {q: "「朝暉夕陰，氣象萬千」主要形容洞庭湖甚麼特點？", options: ["早晚景色的千變萬化", "降雨量極為豐富充沛", "氣溫急劇下降變寒冷", "湖泊四周植物繁茂生長"], ans: 0, correctText: "早晚景色的千變萬化"},
+            {q: "作者在第2段寫「前人之述備矣」，其主要用意是甚麼？", options: ["批評前人的詩賦寫得不好", "說明無須再重複描寫名勝景色", "感嘆自己文采不如前人好", "表明自己沒有親眼看過景"], ans: 1, correctText: "說明無須再重複描寫名勝景色"},
+            {q: "第2段中哪一句話在全文結構上具有「承上啟下」的作用？", options: ["覽物之情，得無異乎？", "此則岳陽樓之大觀也", "政通人和，百廢具興", "屬予作文以記之矣"], ans: 0, correctText: "覽物之情，得無異乎？"},
+            {q: "「然則北通巫峽，南極瀟湘」一句在結構上的承上作用是甚麼？", "options": ["承接首段滕子京的政績表述", "開啟下文古仁人胸襟的闡釋", "承接上文洞庭湖地理景觀描寫", "總結全文抒發政治抱負理念"], ans: 2, correctText: "承接上文洞庭湖地理景觀描寫"},
+            {q: "「若夫霪雨霏霏，連月不開」中「霪雨」是指甚麼？", options: ["猛烈短暫的雷陣雨", "夾雜冰雹的大風雨", "連綿不斷的陰雨", "清晨飄落的濛濛細雨"], ans: 2, correctText: "連綿不斷的陰雨"},
+            {q: "「日星隱耀，山岳潛形」描寫了陰雨天甚麼特徵？", options: ["太陽與星星美麗耀眼", "高山峻嶺顯得格外巍峨", "暴風雨已經徹底停息了", "天色昏暗，天地一片模糊"], ans: 3, correctText: "天色昏暗，天地一片模糊"},
+            {q: "「商旅不行，檣傾楫摧」中的「檣」和「楫」分別指甚麼？", options: ["船的桅杆和船槳", "船的帆布和船錨", "商人的貨物和錢財", "碼頭的欄杆和石階"], ans: 0, correctText: "船的桅杆和船槳"},
+            {q: "作者以「商旅不行，檣傾楫摧」來描寫惡劣天氣，屬於甚麼手法？", options: ["正面直接細緻描寫", "側面描寫（間接描寫）", "純粹動態聽覺描寫", "客觀統計數據羅列"], ans: 1, correctText: "側面描寫（間接描寫）"},
+            {q: "「薄暮冥冥，虎嘯猿啼」中的「薄暮」意思是甚麼？", options: ["清晨太陽初升時", "深夜萬籟俱寂時", "傍晚、黃昏時分", "正午陽光熾熱時"], ans: 2, correctText: "傍晚、黃昏時分"},
+            {q: "「薄暮冥冥，虎嘯猿啼」渲染了陰雨天時岳陽樓怎樣的氣氛？", options: ["蕭瑟、淒涼、陰暗", "熱鬧喧嘩、生機勃勃", "溫馨祥和、如沐春風", "恬靜舒適、悠然自得"], ans: 0, correctText: "蕭瑟、淒涼、陰暗"},
+            {q: "遷客騷人在陰雨天氣登上岳陽樓，會產生甚麼心情？", options: ["心曠神怡，寵辱皆忘，其喜洋洋", "去國懷鄉，憂讒畏譏，感極而悲", "不以物喜，不以己悲，處之泰然", "超脫得失，專注欣賞湖面風光"], ans: 1, correctText: "去國懷鄉，憂讒畏譏，感極而悲"},
+            {q: "「去國懷鄉」中的「去國」古義是指甚麼？", options: ["離開自己的祖國", "離開京城（國都）", "前往外國旅遊留學", "國家滅亡四處逃亡"], ans: 1, correctText: "離開京城（國都）"},
+            {q: "「憂讒畏譏」中「讒」與「譏」的意思分別是甚麼？", options: ["讚美稱頌與熱情鼓勵", "法律懲罰與嚴厲審判", "作戰指揮與策略討論", "說壞話誹謗與譏諷挑剔"], ans: 3, correctText: "說壞話誹謗與譏諷挑剔"},
+            {q: "「滿目蕭然，感極而悲者矣」中的「蕭然」是指甚麼樣子？", options: ["蕭條、冷落、荒涼的樣子", "生氣勃勃、萬物復甦", "繁華熱鬧、市集興旺", "威武雄壯、氣勢磅礡"], ans: 0, correctText: "蕭條、冷落、荒涼的樣子"},
+            {q: "「至若春和景明」中的「景」字古義是指甚麼？", options: ["景色、風景名勝", "日光、陽光", "影子、光學投影", "未來的前景與規劃"], ans: 1, correctText: "日光、陽光"},
+            {q: "「波瀾不驚，上下天光，一碧萬頃」描寫了怎樣的景象？", options: ["春水平靜，水天一色，碧綠無垠", "狂風暴雨，濁浪衝向天空高處", "大雪紛飛，天地一片銀裝素裹", "濃霧瀰漫，視線完全模糊不清"], ans: 0, correctText: "春水平靜，水天一色，碧綠無垠"},
+            {q: "「沙鷗翔集，錦鱗游泳」描寫了洞庭湖甚麼特質？", options: ["動物遭遇風浪瀕臨死亡", "動物生機勃勃、充滿生趣", "漁夫濫捕導致生物滅絕", "湖面完全乾涸沒有生物"], ans: 1, correctText: "動物生機勃勃、充滿生趣"},
+            {q: "「岸芷汀蘭，郁郁青青」運用了哪一種感官描寫？", options: ["聽覺（鳥叫蟲鳴）", "觸覺（微風吹拂）", "嗅覺（香氣濃郁）", "味覺（酸甜苦辣）"], ans: 2, correctText: "嗅覺（香氣濃郁）"},
+            {q: "「岸芷汀蘭，郁郁青青」給讀者帶來怎樣的環境感受？", options: ["四周環境陰森荒涼、令人作嘔", "四周環境清幽芳香、欣欣向榮", "氣候極度乾燥炎熱、草木枯萎", "水流湍急危險、難以前行"], ans: 1, correctText: "四周環境清幽芳香、欣欣向榮"},
+            {q: "「長煙一空，皓月千里」描寫的是甚麼景色？", options: ["霧氣消散，月色清明皎潔的靜態美", "大火燃燒引發漫天濃煙滾滾", "烏雲密佈遮蔽了整片天空月光", "白晝陽光強烈直射千里大地"], ans: 0, correctText: "霧氣消散，月色清明皎潔的靜態美"},
+            {q: "「浮光躍金」描寫的是甚麼景觀？", options: ["白天太陽直射在黃金製品上面", "月光映照在微動水面上如碎金跳動", "漁夫點燃火把捕魚的閃耀光芒", "湖底埋藏的金礦石反射出光線"], ans: 1, correctText: "月光映照在微動水面上如碎金跳動"},
+            {q: "「靜影沉璧」四字中，作者把甚麼比喻為「沉璧」？", options: ["水面上平靜的月亮倒影", "沉入湖底的古代美玉器皿", "遊動在水底的金色鯉魚", "湖岸邊形狀如玉璧的白色石頭"], ans: 0, correctText: "水面上平靜的月亮倒影"},
+            {q: "遷客騷人在晴朗春天登上岳陽樓，會產生怎樣的心境？", options: ["去國懷鄉，憂讒畏譏，滿目蕭然", "心曠神怡，寵辱皆忘，把酒臨風", "憂國憂民，為天下百姓日夜操心", "悔恨自己當初不該直言得罪權貴"], ans: 1, correctText: "心曠神怡，寵辱皆忘，把酒臨風"},
+            {q: "「寵辱皆忘」中的「寵」和「辱」分別是指甚麼？", options: ["飼養寵物與虐待動物", "驕傲自滿與謙虛退讓", "富有發財與貧困潦倒", "榮耀（得寵）與屈辱（受罰貶謫）"], ans: 3, correctText: "榮耀（得寵）與屈辱（受罰貶謫）"},
+            {q: "「予嘗求古仁人之心，或異二者之為」中的「二者」是指哪兩種人？", options: ["朝廷大臣與邊疆戰鬥將士", "富商大賈與貧苦底層百姓", "因陰雨而悲者與因晴和而喜者", "古代聖賢君王與當今皇帝"], ans: 2, correctText: "因陰雨而悲者與因晴和而喜者"},
+            {q: "「古仁人」處世的核心態度是甚麼？", options: ["情隨境遷，見景生情", "及時行樂，功名利祿", "不以物喜，不以己悲", "遠離塵世，消極避世"], ans: 2, correctText: "不以物喜，不以己悲"},
+            {q: "「不以物喜，不以己悲」中的「物」和「己」分別指甚麼？", options: ["外在環境客觀事物與個人得失榮辱", "物質金錢財富與自己的肉身軀體", "天地自然動物與人類社會整體", "古代法規制度與個人道德修養"], ans: 0, correctText: "外在環境客觀事物與個人得失榮辱"},
+            {q: "「居廟堂之高，則憂其民」中的「廟堂」借代指甚麼？", options: ["宗廟祠堂祭祀之處", "朝廷（在朝做官）", "皇宮內部的佛堂寺廟", "地方官員居住的府邸"], ans: 1, correctText: "朝廷（在朝做官）"},
+            {q: "「處江湖之遠，則憂其君」中的「江湖」借代指甚麼？", options: ["民間（不在朝廷、退隱遠方）", "江河湖海等自然水域", "江湖俠客活動的武林世界", "貧窮偏僻的捕魚村莊"], ans: 0, correctText: "民間（不在朝廷、退隱遠方）"},
+            {q: "「是進亦憂，退亦憂」中的「進」和「退」分別指甚麼？", options: ["在戰場前進作戰與向後撤退逃跑", "職位晉升加薪與職位被降級", "在朝廷做官與不在朝廷做官", "走出岳陽樓大門與退回房間"], ans: 2, correctText: "在朝廷做官與不在朝廷做官"},
+            {q: "范仲淹在文末引述古仁人的哪一句名言以表達自己的崇高政治抱負？", options: ["不以物喜，不以己悲", "居廟堂之高則憂其民", "先天下之憂而憂，後天下之樂而樂", "微斯人，吾誰與歸"], ans: 2, correctText: "先天下之憂而憂，後天下之樂而樂"},
+            {q: "「先天下之憂而憂，後天下之樂而樂」表現出怎樣的精神？", options: ["吃苦在前、享樂在後、以天下為己任", "及時行樂、享受大自然山水美景", "追求個人仕途飛黃騰達與富貴", "避世隱居、不問國家大事是非"], ans: 0, correctText: "吃苦在前、享樂在後、以天下為己任"},
+            {q: "「微斯人，吾誰與歸」在文末起到了甚麼作用？", options: ["感嘆天下再也沒有人比自己聰明", "既勉勵好友滕子京，也表達效法古仁人", "批評當朝皇帝不能重用忠良人才", "表明自己即將徹底歸隱江湖生活"], ans: 1, correctText: "既勉勵好友滕子京，也表達效法古仁人"},
+            {q: "《岳陽樓記》第5段在文體表達方式上主要屬於甚麼？", options: ["細緻描繪湖光山色的寫景", "客觀記錄建樓經過的說明", "議論昇華與抒發政治抱負", "生動敘述人物對話的記敘"], ans: 2, correctText: "議論昇華與抒發政治抱負"},
+            {q: "文中「濁浪排空」與「靜影沉璧」在描寫方式上構成甚麼對比？", options: ["動態描寫與靜態描寫對比", "聽覺描寫與嗅覺描寫對比", "正面描寫與直接描寫對比", "虛構描寫與科學記錄對比"], ans: 0, correctText: "動態描寫與靜態描寫對比"},
+            {q: "作者描寫岳陽樓景物時，主要運用了哪種描寫技巧？", options: ["單純依賴視覺客觀描摹", "多感官描寫與動靜結合", "單純記錄聲音的聽覺描寫", "全篇均使用科學數據說明"], ans: 1, correctText: "多感官描寫與動靜結合"},
+            {q: "「商旅不行，檣傾楫摧」與「漁歌互答，此樂何極」構成甚麼對比？", options: ["人物活動的蕭條與歡樂對比", "湖泊水深與水淺程度對比", "商人收入多與少的經濟對比", "捕魚技術高與低的技巧對比"], ans: 0, correctText: "人物活動的蕭條與歡樂對比"},
+            {q: "「霪雨霏霏、薄暮冥冥」與「春和景明、上下天光」構成甚麼對比？", options: ["氣候與光線明暗的強烈對比", "春季與秋季植物生長對比", "古代建築與現代建築對比", "陸地交通與水上交通對比"], ans: 0, correctText: "氣候與光線明暗的強烈對比"},
+            {q: "文章開首寫滕子京「謫守巴陵郡」，文末寫「處江湖之遠則憂其君」，這屬於甚麼？", options: ["借題發揮插敘手法", "首尾呼應（前後照應）", "倒敍鋪墊引申手法", "象徵借代雙關修辭"], ans: 1, correctText: "首尾呼應（前後照應）"},
+            {q: "作者先寫遷客騷人「雨悲晴喜」的不同感受，再寫「古仁人」的處世態度，這是甚麼手法？", options: ["排比修辭手法", "借喻修辭手法", "襯托（以遷客騷人反襯古仁人）", "擬人修辭手法"], ans: 2, correctText: "襯托（以遷客騷人反襯古仁人）"},
+            {q: "2024年文憑試題中，「靜影沉璧」四字運用了甚麼修辭手法？", options: ["比喻（將明月倒影比喻為璧玉）", "誇飾（誇大湖水深度）", "擬人（賦予月影生命）", "借代（用玉璧借代錢財）"], ans: 0, correctText: "比喻（將明月倒影比喻為璧玉）"},
+            {q: "2024年文憑試題中，「靜影沉璧」四字突顯了洞庭湖甚麼特點？", options: ["波濤洶湧、深不可測", "清澈澄明、水靜無波", "遼闊無垠、魚類豐富", "渾濁泥濘、風沙漫天"], ans: 1, correctText: "清澈澄明、水靜無波"},
+            {q: "范仲淹在《岳陽樓記》中為何略寫樓宇建築，詳寫景物與覽物之情？", options: ["因為范仲淹根本沒有親自到過岳陽樓", "因前人描述已備，旨在藉景抒發政治抱負", "因為滕子京修建的岳陽樓非常簡陋", "因為朝廷下令禁止描寫建築物規模"], ans: 1, correctText: "因前人描述已備，旨在藉景抒發政治抱負"},
+            {q: "從作者對遷客騷人與古仁人的分析中，可看出范仲淹是一位怎樣的官員？", options: ["追求個人安逸享樂的普通文人", "性格消極悲觀、怨天尤人的遷客", "專門逢迎拍馬屁的諂媚大臣", "心繫國家人民、忠君愛民的忠臣"], ans: 3, correctText: "心繫國家人民、忠君愛民的忠臣"},
+            {q: "「政通人和，百廢具興」中的「具」通甚麼字？本義是甚麼？", options: ["通「聚」，意為聚集在一起", "通「俱」，意為全部、都", "通「據」，意為根據事實依據", "通「巨」，意為巨大宏偉宏大"], ans: 1, correctText: "通「俱」，意為全部、都"},
+            {q: "「屬予作文以記之」中的「屬」通甚麼字？本義是甚麼？", options: ["通「囑」，意為囑託、委託", "通「注」，意為注入關注心血", "通「著」，意為寫作出版書籍", "通「囑」，意為叮囑下屬服從"], ans: 0, correctText: "通「囑」，意為囑託、委託"},
+            {q: "「百廢具興」中的「廢」字在詞類活用上屬於哪一種？", options: ["名詞作動詞（廢棄規矩）", "形容詞作動詞（變荒廢）", "動詞作名詞（荒廢了的事業）", "副詞修飾動詞（徹底廢除）"], ans: 2, correctText: "動詞作名詞（荒廢了的事業）"},
+            {q: "「先天下之憂而憂」中的「先」字在詞類活用上屬於哪一種？", options: ["動詞作名詞（最前面位置）", "形容詞作動詞（優先處理）", "名詞作動詞（搶在前面走）", "名詞作狀語（在……之前）"], ans: 3, correctText: "名詞作狀語（在……之前）"},
+            {q: "「後天下之樂而樂」中的「後」字在詞類活用上屬於哪一種？", options: ["動詞作名詞（最後的結果）", "名詞作狀語（在……之後）", "形容詞作動詞（落後於人）", "名詞作動詞（排在後面退）"], ans: 1, correctText: "名詞作狀語（在……之後）"},
+            {q: "「滕子京謫守巴陵郡」中的「謫」字在詞類活用上屬於哪一種？", options: ["動詞作形容詞（被貶謫的）", "名詞作狀語（向外地去）", "名詞作動詞（懲罰官員）", "形容詞作名詞（有罪之人）"], ans: 0, correctText: "動詞作形容詞（被貶謫的）"},
+            {q: "「憂讒畏譏」中的「讒」字在詞類活用上屬於哪一種？", options: ["動詞作名詞（壞話讒言）", "名詞作動詞（說壞話、進讒言）", "形容詞作動詞（變狠毒）", "名詞作狀語（偷偷地說）"], ans: 1, correctText: "名詞作動詞（說壞話、進讒言）"},
+            {q: "「刻唐賢今人詩賦於其上」中的「賢」字在詞類活用上屬於哪一種？", options: ["形容詞作名詞（賢明之人）", "名詞作動詞（尊重賢人）", "動詞作名詞（展現才幹）", "形容詞作動詞（變得聰慧）"], ans: 0, correctText: "形容詞作名詞（賢明之人）"},
+            {q: "「錦鱗游泳」中的「錦鱗」在修辭借代上是指甚麼？", options: ["借代湖底的精美鵝卵石", "借代水鳥身上的彩色羽毛", "借代美麗的魚群", "借代水草叢生的美麗湖面"], ans: 2, correctText: "借代美麗的魚群"},
+            {q: "「而或長煙一空」中的「空」字在詞類活用上屬於哪一種？", options: ["名詞作狀語（在高空中）", "動詞作名詞（天空間隙）", "形容詞作動詞（消散、散盡）", "副詞修飾動詞（毫無收穫）"], ans: 2, correctText: "形容詞作動詞（消散、散盡）"},
+            {q: "「北通巫峽，南極瀟湘」中的「北」和「南」在詞類活用上屬於甚麼？", options: ["名詞作狀語（分別指向北、向南）", "動詞作名詞（北方和南方地域）", "形容詞作動詞（往北方走、南遷）", "名詞作動詞（打通北方、佔領南方）"], ans: 0, correctText: "名詞作狀語（分別指向北、向南）"},
+            {q: "「或異二者之為」中的「為」字在詞類活用上屬於哪一種？", options: ["名詞作動詞（做某件事情）", "形容詞作名詞（作為規範）", "動詞作名詞（心理活動、思想表現）", "介詞轉化為連詞（因為這緣故）"], ans: 2, correctText: "動詞作名詞（心理活動、思想表現）"},
+            {q: "「氣象萬千」中的「氣象」古今詞義有何不同？", options: ["古義指事態景象，今義指天氣變化狀況", "古義指天氣變化，今義指政治風氣表現", "古義指大氣壓力，今義指宏偉豪邁氣概", "古義指胸襟開闊，今義指氣象台的預報"], ans: 0, correctText: "古義指事態景象，今義指天氣變化狀況"},
+            {q: "「微斯人，吾誰與歸」中的「微」字古今詞義有何不同？", options: ["古義指微小細小，今義指如果沒有存在", "古義指如果沒有，今義指細小、微弱", "古義指稍微略微，今義指隱蔽不被人知", "古義指秘密進行，今義指微信通訊軟件"], ans: 1, correctText: "古義指如果沒有，今義指細小、微弱"},
+            {q: "「此則岳陽樓之大觀也」中的「大觀」古今詞義有何不同？", options: ["古義指雄偉壯麗的景象，今義指觀看、參觀", "古義指大規模遊覽，今義指世界觀與價值觀", "古義指偉大的觀點，今義指道教寺廟的名稱", "古義指參觀大展覽，今義指風景美麗壯觀"], ans: 0, correctText: "古義指雄偉壯麗的景象，今義指觀看、參觀"},
+            {q: "「橫無際涯」中的「橫」字古今詞義有何不同？", options: ["古義指蠻橫無禮，今義指水流向橫向流淌", "古義指橫向阻擋，今義指寬度長度很廣闊", "古義指廣遠、寬廣，今義指與豎直方向相對", "古義指水平橫線，今義指橫衝直撞無規矩"], ans: 2, correctText: "古義指廣遠、寬廣，今義指與豎直方向相對"},
+            {q: "「濁浪排空」中的「排空」古今詞義有何不同？", options: ["古義指清空貨物，今義指飛機排隊飛上高空", "古義指騰出空間，今義指大浪把空氣都排擠", "古義指排列整齊，今義指排泄污水污染環境", "古義指沖向高空，今義指完全去除清空"], ans: 3, correctText: "古義指沖向高空，今義指完全去除清空"},
+            {q: "「予觀夫巴陵勝狀」中的「夫」字古今詞義有何不同？", options: ["古義指指示代詞那，今義指丈夫或成年男子", "古義指成年男子，今義指指示代詞那個人", "古義指農夫勞工，今義指感嘆詞嗟夫的省略", "古義指挑夫僕人，今義指女子的法定配偶"], ans: 0, correctText: "古義指指示代詞那，今義指丈夫或成年男子"},
+            {q: "「前人之述備矣」中的「備」字古今詞義有何不同？", options: ["古義指準備妥當，今義指詳盡全面不遺漏", "古義指詳盡、完備，今義指準備、防備", "古義指防守戒備，今義指配備齊全的設備", "古義指具備資質，今義指備份儲存的檔案"], ans: 1, correctText: "古義指詳盡、完備，今義指準備、防備"},
+            {q: "「增其舊制」中的「制」字古今詞義有何不同？", options: ["古義指規模、格局，今義指制度、制約", "古義指法律制度，今義指工程建築的規模", "古義指製作過程，今義指受制於人的狀態", "古義指控制情緒，今義指生產製造的規格"], ans: 0, correctText: "古義指規模、格局，今義指制度、制約"},
+            {q: "「屬予作文以記之」中的「作文」古今詞義有何不同？", options: ["古義指學生的課業，今義指創作長篇小說", "古義指進行工作勞動，今義指文學藝術創作", "古義指寫一篇文章，今義指學生寫作習作", "古義指偽造文章證件，今義指語文考試答題"], ans: 2, correctText: "古義指寫一篇文章，今義指學生寫作習作"},
+            {q: "「則有去國懷鄉」中的「國」字古今詞義有何不同？", options: ["古義指國都、京師，今義指主權國家", "古義指外國異地，今義指國都首都城市", "古義指諸侯封地，今義指家鄉故里鄉土", "古義指國立學校，今義指聯合國組織成員"], ans: 0, correctText: "古義指國都、京師，今義指主權國家"},
+            {q: "「予嘗求古仁人之心」中的「嘗」字古今詞義有何不同？", options: ["古義指品嚐滋味，今義指曾經有過經歷", "古義指曾經，今義指品嚐食物味道", "古義指嘗試去做，今義指品德高尚的表現", "古義指經常發生，今義指檢驗產品質量"], ans: 1, correctText: "古義指曾經，今義指品嚐食物味道"},
+            {q: "「沙鷗翔集」中的「集」字古今詞義有何不同？", options: ["古義指集合開會，今義指鳥兒在樹枝築巢", "古義指市場集市，今義指編纂成書的集子", "古義指鳥群停息休息，今義指集合、集中", "古義指飛向高處，今義指群體聚集在一起"], ans: 2, correctText: "古義指鳥群停息休息，今義指集合、集中"},
+            {q: "「進亦憂，退亦憂」中的「進」與「退」在古代分別指甚麼？", options: ["在朝廷做官任職與不在朝廷做官退處民間", "向前進軍作戰打仗與向後撤退防守防線", "科舉考試中進士與科舉落第名落孫山", "進宮面見皇帝奏事與退出金鑾殿回府邸"], ans: 0, correctText: "在朝廷做官任職與不在朝廷做官退處民間"},
+            {q: "「微斯人，吾誰與歸？」在文言句式上屬於哪一種？", options: ["判斷句（表判斷）", "被動句（表被動）", "賓語前置句（倒裝句）", "省略句（省主語）"], ans: 2, correctText: "賓語前置句（倒裝句）"},
+            {q: "將「微斯人，吾誰與歸？」還原為現代正常語序應是甚麼？", options: ["微斯人，吾與誰歸？", "斯人微，誰與吾歸？", "吾歸與誰，微斯人？", "誰與斯人，吾歸微？"], ans: 0, correctText: "微斯人，吾與誰歸？"},
+            {q: "「此則岳陽樓之大觀也」在文言句式上屬於哪一種？", options: ["賓語前置倒裝句", "判斷句（用「則……也」表判斷）", "定語後置倒裝句", "主謂倒裝感嘆句"], ans: 1, correctText: "判斷句（用「則……也」表判斷）"},
+            {q: "「屬予作文以記之」中的「以」字在此處的詞性與用法是甚麼？", options: ["介詞，表示原因，相當於「因為」", "介詞，表示憑藉，相當於「用」", "連詞，表示目的，相當於「來」", "動詞，表示認為，相當於「以為」"], ans: 2, correctText: "連詞，表示目的，相當於「來」"},
+            {q: "「不以物喜，不以己悲」中的「以」字詞性與用法是甚麼？", options: ["介詞，表示原因，相當於「因為」", "連詞，表示目的，相當於「來」", "介詞，表示憑藉，相當於「拿」", "動詞，表示帶領，相當於「率」"], ans: 0, correctText: "介詞，表示原因，相當於「因為」"},
+            {q: "「處江湖之遠，則憂其君」中的「其」字應語譯為甚麼？", options: ["那裏的（指示代詞）", "其中的（表示範圍）", "他們的（指百姓的或官吏的）", "大概是（表示推測）"], ans: 2, correctText: "他們的（指百姓的或官吏的）"},
+            {q: "「微斯人，吾誰與歸？」最準確且具備反問語氣的現代漢語語譯是甚麼？", options: ["稍微有這些人，我就和他們一起回家吧。", "沒有這樣的人，我誰也不會去跟從學習。", "如果這些人地位低微，我還能跟誰回去呢？", "如果沒有這些人，我將依歸誰呢？"], ans: 3, correctText: "如果沒有這些人，我將依歸誰呢？"},
+            {q: "《岳陽樓記》第4段寫晴景時「漁歌互答，此樂何極！」中的「極」意思是甚麼？", options: ["極點、頂峰", "南北極地帶", "窮盡、盡頭", "非常、極其"], ans: 2, correctText: "窮盡、盡頭"},
+            {q: "「感極而悲者矣」中的「極」字意思是甚麼？", options: ["窮盡、盡頭", "表示程度極深", "終止、結束", "極限、標準"], ans: 1, correctText: "表示程度極深"},
+            {q: "「或異二者之為」中的「或」字意思是甚麼？", options: ["有時、偶爾", "或者……或者", "有人、某人", "或許、也許"], ans: 3, correctText: "或許、也許"},
+            {q: "「而或長煙一空」中的「或」字意思是甚麼？", options: ["有時", "或許", "如果", "或者"], ans: 0, correctText: "有時"},
+            {q: "范仲淹在《岳陽樓記》末尾以「噫！微斯人，吾誰與歸！」作結，主要抒發了甚麼？", options: ["抱怨朝廷腐敗讓自己懷才不遇", "感慨知音難尋，並藉此勉勵滕子京", "後悔當初支持慶曆新政的決定", "渴望能早日告老還鄉隱居田園"], ans: 1, correctText: "感慨知音難尋，並藉此勉勵滕子京"},
+            {q: "下列哪一句話完整摘錄了范仲淹用以明志並規勸滕子京的核心名句？", options: ["不以物喜，不以己悲", "居廟堂之高則憂其民", "處江湖之遠則憂其君", "先天下之憂而憂，後天下之樂而樂"], ans: 3, correctText: "先天下之憂而憂，後天下之樂而樂"},
+            {q: "《岳陽樓記》中「銜遠山，吞長江」的主語是甚麼？", options: ["岳陽樓", "洞庭湖", "巫峽水", "長江水"], ans: 1, correctText: "洞庭湖"},
+            {q: "縱觀全文，范仲淹借《岳陽樓記》表現出對友人的規勸，最主要希望滕子京做到甚麼？", options: ["儘快向皇帝上書認錯爭取調回京城", "在岳州大肆修建樓閣以展示政績工程", "超越個人的仕途得失，始終心繫國家人民", "放棄政治理想與好友一起寄情山水"], ans: 2, correctText: "超越個人的仕途得失，始終心繫國家人民"}
+        ];
+
+        let playerName = "";
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let userAnswersHistory = [];
+
+        let startTime = null;
+        let timerInterval = null;
+        let finalElapsedSeconds = 0;
+
+        function shuffleArray(array) {
+            let arr = array.slice();
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                let temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+            return arr;
+        }
+
+        function prepareQuestions(bank, count) {
+            if (!Array.isArray(bank) || bank.length === 0) return [];
+            let shuffledBank = shuffleArray(bank);
+            let selected = shuffledBank.slice(0, Math.min(count, shuffledBank.length));
+            
+            return selected.map(item => {
+                let originalOpts = item.options.slice();
+                let ansIndex = (typeof item.ans === 'number' && item.ans >= 0 && item.ans < originalOpts.length) ? item.ans : 0;
+                let correctText = item.correctText || originalOpts[ansIndex];
+                let randomizedOpts = shuffleArray(originalOpts);
+                let newAnsIdx = randomizedOpts.indexOf(correctText);
+                return {
+                    q: item.q,
+                    options: randomizedOpts,
+                    ans: newAnsIdx,
+                    correctText: correctText
+                };
+            });
+        }
+
+        function startBattle() {
+            const nameInput = document.getElementById("player-name");
+            const alertBox = document.getElementById("name-alert");
+            playerName = nameInput ? nameInput.value.trim() : "";
+
+            if (!playerName) {
+                if (alertBox) alertBox.textContent = "請先輸入姓名。";
+                if (nameInput) nameInput.focus();
+                return;
+            }
+            if (alertBox) alertBox.textContent = "";
+
+            currentQuestions = prepareQuestions(masterBank, 30);
+
+            if (!currentQuestions || currentQuestions.length === 0) {
+                alert("題目準備失敗，請重新整理頁面！");
+                return;
+            }
+
+            currentIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            userAnswersHistory = [];
+
+            const pStatus = document.getElementById("player-status-name");
+            if (pStatus) pStatus.textContent = playerName;
+
+            const homeScreen = document.getElementById("screen-home");
+            const quizScreen = document.getElementById("screen-quiz");
+            if (homeScreen) homeScreen.classList.remove("active");
+            if (quizScreen) quizScreen.classList.add("active");
+
+            startTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimer();
+
+            loadQuizStep();
+        }
+
+        function updateTimer() {
+            let elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+            let mins = Math.floor(elapsedSec / 60);
+            let secs = elapsedSec % 60;
+            const timerElem = document.getElementById("timer-display");
+            if (timerElem) {
+                timerElem.textContent = `用時：${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        function loadQuizStep() {
+            if (currentIndex >= currentQuestions.length || wrongCount >= 5) {
+                endBattle();
+                return;
+            }
+
+            const qObj = currentQuestions[currentIndex];
+            const qCounter = document.getElementById("question-counter");
+            const qContent = document.getElementById("ui-question-content");
+            const wrongSpan = document.getElementById("wrong-count");
+            const remainSpan = document.getElementById("ques-remaining");
+            const playerHp = document.getElementById("player-hp");
+            const monsterHp = document.getElementById("monster-hp");
+            const optionsBox = document.getElementById("ui-options-container");
+
+            if (!qContent || !optionsBox) return;
+
+            if (qCounter) qCounter.textContent = `題目 ${currentIndex + 1} / ${currentQuestions.length}`;
+            qContent.textContent = qObj.q;
+            if (wrongSpan) wrongSpan.textContent = wrongCount;
+            if (remainSpan) remainSpan.textContent = currentQuestions.length - currentIndex;
+
+            if (playerHp) playerHp.style.width = `${Math.max(0, 100 - (wrongCount * 20))}%`;
+            if (monsterHp) monsterHp.style.width = `${Math.max(0, 100 - ((currentIndex / currentQuestions.length) * 100))}%`;
+
+            optionsBox.innerHTML = "";
+            qObj.options.forEach((opt, idx) => {
+                let btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.type = "button";
+                btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.onclick = function() { handleAnswer(idx, qObj); };
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIdx, qObj) {
+            let isCorrect = (selectedIdx === qObj.ans);
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                wrongCount++;
+            }
+
+            userAnswersHistory.push({
+                question: qObj.q,
+                selected: selectedIdx,
+                options: qObj.options,
+                correctIdx: qObj.ans,
+                isCorrect: isCorrect,
+                correctText: qObj.correctText
+            });
+
+            currentIndex++;
+            loadQuizStep();
+        }
+
+        function endBattle() {
+            if (timerInterval) clearInterval(timerInterval);
+            finalElapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+
+            const quizScreen = document.getElementById("screen-quiz");
+            const resultScreen = document.getElementById("screen-result");
+            if (quizScreen) quizScreen.classList.remove("active");
+            if (resultScreen) resultScreen.classList.add("active");
+
+            let mins = Math.floor(finalElapsedSeconds / 60);
+            let secs = finalElapsedSeconds % 60;
+            let totalQuestions = currentQuestions.length;
+
+            const avatar = document.getElementById("result-avatar");
+            const title = document.getElementById("result-title");
+            const desc = document.getElementById("result-desc");
+            const scoreText = document.getElementById("result-score-text");
+            const timeText = document.getElementById("result-time-text");
+            const reviewBox = document.getElementById("review-list");
+
+            if (wrongCount >= 5) {
+                if (avatar) avatar.textContent = "🛌";
+                if (title) {
+                    title.textContent = "中道崩殂";
+                    title.className = "result-title fail";
+                }
+                if (desc) desc.textContent = "你未能堅持到最後，被怪物擊敗了。";
+            } else if (wrongCount > 0) {
+                if (avatar) avatar.textContent = "🥵";
+                if (title) {
+                    title.textContent = "歷盡艱辛";
+                    title.className = "result-title hard";
+                }
+                if (desc) desc.textContent = "你歷盡艱辛，以滿身傷痕為代價擊敗了怪物。";
+            } else {
+                if (avatar) avatar.textContent = "😎";
+                if (title) {
+                    title.textContent = "易如反掌";
+                    title.className = "result-title easy";
+                }
+                if (desc) desc.textContent = "你大臂一揮，怪物頓時灰飛煙滅。";
+            }
+
+            if (scoreText) scoreText.textContent = `答對題數：${correctCount} / ${totalQuestions} 題`;
+            if (timeText) timeText.textContent = `總用時：${mins} 分 ${secs} 秒`;
+
+            if (reviewBox) {
+                reviewBox.innerHTML = "";
+                userAnswersHistory.forEach((ans, idx) => {
+                    let item = document.createElement("div");
+                    item.className = `review-item ${ans.isCorrect ? 'correct' : 'incorrect'}`;
+                    
+                    let userOptStr = ans.selected !== null ? `${String.fromCharCode(65 + ans.selected)}. ${ans.options[ans.selected]}` : "未作答";
+                    let correctOptStr = `${String.fromCharCode(65 + ans.correctIdx)}. ${ans.correctText}`;
+
+                    item.innerHTML = `<strong>Q${idx + 1}: ${ans.question}</strong><br>` +
+                                     `您的選擇：<span style="color:${ans.isCorrect?'var(--success-color)':'var(--accent-color)'};">${userOptStr}</span><br>` +
+                                     `正確答案：<span style="color:var(--success-color);">${correctOptStr}</span>`;
+                    reviewBox.appendChild(item);
+                });
+            }
+        }
+
+        function goToHome() {
+            const resultScreen = document.getElementById("screen-result");
+            const homeScreen = document.getElementById("screen-home");
+            if (resultScreen) resultScreen.classList.remove("active");
+            if (homeScreen) homeScreen.classList.add("active");
+            const nameInput = document.getElementById("player-name");
+            if (nameInput) {
+                nameInput.value = "";
+                nameInput.focus();
+            }
+        }
+    </script>
+</body>
+</html>
